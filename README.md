@@ -1,8 +1,10 @@
 # vue-socket-tada
 Небольшой чатик для api https://nane.tada.team/
 
-Для красоты и ускорения создания интерфеса использовался https://vuetifyjs.com/ 
+Для красоты и ускорения создания интерфеса использовался https://vuetifyjs.com/
+
 Для связи по websockets whttps://www.npmjs.com/package/vue-native-websocket
+
 Для связи с api https://github.com/axios/axios
 
 
