@@ -1,15 +1,24 @@
-# vue-socket-tada
-Небольшой чатик для api https://nane.tada.team/
+# vue-socket-td
 
-Для красоты и ускорения создания интерфеса использовался https://vuetifyjs.com/
+## Project setup
+```
+npm install
+```
 
-Для связи по websockets whttps://www.npmjs.com/package/vue-native-websocket
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
 
-Для связи с api https://github.com/axios/axios
+### Compiles and minifies for production
+```
+npm run build
+```
 
+### Lints and fixes files
+```
+npm run lint
+```
 
-Установка 
-1. скачать репозиторий 
-2. выполнить npm install
-3. запустьть npm run serve 
-запускается поумолчанию на http://localhost:8080/
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
