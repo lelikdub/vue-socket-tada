@@ -38,13 +38,13 @@ export default {
     state.socket.isConnected = false
   },
   SOCKET_ONERROR (state, event)  {
-    state.showInfo = { color: 'success', show: true, text: 'Сообщение отправлено' }
+    // state.showInfo = { color: 'success', show: true, text: 'Сообщение отправлено' }
     console.error(state, event)
   },
   // default handler called for all methods
   SOCKET_ONMESSAGE (state, message)  {
 
-    //state.showInfo = { color: 'success', show: true, text: 'Сообщение отправлено' }
+    // state.showInfo = { color: 'success', show: true, text: 'Сообщение отправлено' }
 
     let roomId= state.rooms.findIndex(x => x.name === message.room)
     if(roomId>=0){
