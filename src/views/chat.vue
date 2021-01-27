@@ -346,9 +346,9 @@
             }
             await this.$socket.sendObj(message)
             this.messageSending = false
-            this.newRoomDialog = false
+            this.newRoomDialog = false           
+            this.selectedRoomName = this.newRoomName
             this.selectedItem = 0
-
           }
         }
       }
