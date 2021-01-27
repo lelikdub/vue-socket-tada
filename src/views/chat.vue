@@ -314,6 +314,7 @@
         },
         logout () {
           this.$store.dispatch('clearUserName')
+          this.$disconnect()
           this.$router.push('/')
         },
         getRoomHistory (name) {
