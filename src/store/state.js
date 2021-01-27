@@ -4,6 +4,7 @@
 const getDefaultState = {
   url: 'https://nane.tada.team/api/',
   wssurl: 'wss://nane.tada.team/ws',
+  showHistory: false,
   errorMsg: '',
   isName: false,
   isAppLoading: true,
@@ -33,6 +34,10 @@ const getDefaultState = {
     timeout: 6000,
     x: null,
     y: 'top',
+  },
+  reconnectInfo: {
+    show: false,
+    text: '',
   },
 }
 

@@ -11,18 +11,20 @@
     :vertical="InfoText.mode === 'vertical'"
   >
     {{ InfoText.text }}
-    <v-spacer/>
-    <v-btn
-      dark
-      text
-      @click="InfoText.show=false"
-    >
-      <v-icon
-        aria-label="Close"
+    <template v-slot:action="{ attrs }">
+      <v-btn
+              dark
+              text
+              v-bind="attrs"
+              @click="InfoText.show=false"
       >
-        mdi-close
-      </v-icon>
-    </v-btn>
+        <v-icon
+                aria-label="Close"
+        >
+          mdi-close
+        </v-icon>
+      </v-btn>
+    </template>
   </v-snackbar>
 </template>
 <script>

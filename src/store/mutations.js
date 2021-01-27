@@ -26,20 +26,38 @@ export default {
   setRoomHistory (state, value) {
     state.messages = [...value]
   },
+  setShowRoomHistory (state, value) {
+    state.showHistory = value
+  },
   clearRoomHistory (state) {
     state.selectedRoomName = null
     state.messages = []
   },
   SOCKET_ONOPEN (state, event)  {
+    console.log('SOCKET_ONOPEN', event)
     Vue.prototype.$socket = event.currentTarget
+    state.showInfo.color = 'success'
+    state.showInfo.show = true
+    state.showInfo.mode = false
+    state.showInfo.x = 'left'
+    state.showInfo.text= '✅ Socket connected!'
     state.socket.isConnected = true
+    state.showHistory = false
   },
-  SOCKET_ONCLOSE (state)  {
+  SOCKET_ONCLOSE (state, event)  {
     state.socket.isConnected = false
+    if(!state.reconnectInfo.show || !state.showHistory){
+      state.reconnectInfo.show = true
+      state.reconnectInfo.text = 'Соединение с сервером(' + state.wssurl + ') потеряно'
+    }
+    console.log('SOCKET_ONCLOSE', event)
   },
   SOCKET_ONERROR (state, event)  {
-    // state.showInfo = { color: 'success', show: true, text: 'Сообщение отправлено' }
+    if(!state.reconnectInfo.show || !state.showHistory) {
+    state.reconnectInfo.show = true
+    state.reconnectInfo.text = 'Ошибка соединения с сервером(' + state.wssurl + ')'
     console.error(state, event)
+    }
   },
   // default handler called for all methods
   SOCKET_ONMESSAGE (state, message)  {

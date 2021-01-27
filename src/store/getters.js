@@ -8,8 +8,20 @@ export default {
   isAppLoading: state => {
     return state.isAppLoading
   },
+  isConnected: state => {
+    return state.socket.isConnected
+  },
+  isConnecting: state => {
+    return !state.socket.isConnected
+  },
   showInfo: state => {
     return state.showInfo
+  },
+  reconnectInfo: state => {
+    return state.reconnectInfo
+  },
+  showHistory: state => {
+    return state.showHistory
   },
   userInfo: state => {
     return state.userInfo

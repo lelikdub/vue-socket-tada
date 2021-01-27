@@ -24,6 +24,9 @@
 
                         <v-spacer></v-spacer>
 
+                        <v-btn v-if="showHistory" @click="reconnectSocket" icon>
+                            <v-icon>mdi-refresh</v-icon>
+                        </v-btn>
                         <v-btn @click="logout" icon>
                             <v-icon>mdi-logout</v-icon>
                         </v-btn>
@@ -53,7 +56,7 @@
                             </template>
                         </v-list-item-group>
                     </v-list>
-                    <v-card-actions class="cyan">
+                    <v-card-actions class="cyan" v-if="!showHistory">
                         <v-spacer/>
                         <v-dialog
                                 v-model="newRoomDialog"
@@ -162,26 +165,68 @@
                                 ></v-divider>
                             </template>
                     </v-list>
-                    <v-card-actions class="cyan lighten-2">
+                    <v-card-actions class="cyan lighten-2" v-if="!showHistory">
                     <v-spacer/>
-                    <v-text-field
-                            v-model="messageText"
-                            label="Введите сообщение"
-                            hide-details
-                            solo
-                            :maxlength="maxMessageLength"
-                    ></v-text-field>
-                    <v-btn :loading="messageSending" class="mx-3" @click="sendMessage">
-                        Отправить сообщение
-                    </v-btn>
+                        <v-form
+                                @submit.prevent="sendMessage"
+                                ref="newmessage"
+                                class="d-md-flex col-12"
+                        >
+                            <v-text-field
+                                    v-model="messageText"
+                                    label="Введите сообщение"
+                                    hide-details
+                                    solo
+                                    width="100%"
+                                    :maxlength="maxMessageLength"
+                            ></v-text-field>
+                            <v-btn :loading="messageSending" class="mx-3 mt-1" type="submit">
+                                Отправить сообщение
+                            </v-btn>
+                        </v-form>
                 </v-card-actions>
                 </v-card>
             </v-col>
         </v-row>
+        <v-dialog
+                v-model="loading"
+                persistent
+                overlay-opacity="1"
+                :width="300"
+        >
+            <v-card
+                    :color="reconnectInfo.show?'lime lighten-5 pa-2':'primary pa-2'"
+                    :dark="!reconnectInfo.show"
+            >
+                <v-card-text v-if="reconnectInfo.show">
+                    {{reconnectInfo.text}}
+                </v-card-text>
+                <v-card-text v-else>
+                    Загрузка...
+                    <v-progress-linear
+                            indeterminate
+                            color="white"
+                            class="mb-0"
+                    />
+                </v-card-text>
+                <v-card-actions class="text-center" v-if="reconnectInfo.show">
+                    <v-row>
+                        <v-col cols="12">
+                            <v-btn @click="reconnectSocket">повторное подключение</v-btn>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-btn @click="showHistory=true">показать историю</v-btn>
+                        </v-col>
+                    </v-row>
+
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-container>
 </template>
 <script>
     export default {
+      name: 'chats',
       data () {
        return {
          newRoomDialog: false,
@@ -199,9 +244,26 @@
       },
       mounted () {
         this.$store.dispatch('getRooms')
-        this.$connect(this.wssurl + '?username=' + this.userInfo.name, { format: 'json', store: this.$store, reconnection: true })
+        if (!this.$store.getters.isConnected) {
+          this.$connect(this.wssurl + '?username=' + this.userInfo.name, { format: 'json', store: this.$store })
+        }
       },
       computed: {
+        loading() {
+          if(this.$store.getters.showHistory)return false
+          return this.$store.getters.isConnecting
+        },
+        reconnectInfo() {
+          return this.$store.getters.reconnectInfo
+        },
+        showHistory: {
+          get: function () {
+            return this.$store.getters.showHistory
+          },
+          set: function (newValue) {
+            this.$store.commit('setShowRoomHistory', newValue)
+          },
+        },
         options () {
           return {
             duration: this.duration,
@@ -238,10 +300,13 @@
         }
       },
       methods: {
+        reconnectSocket() {
+          this.$connect(this.wssurl + '?username=' + this.userInfo.name, { format: 'json', store: this.$store })
+        },
         scrollToElement() {
           const lastelm = this.selectedRoomMessages.length - 1
           if(lastelm>0){
-            setTimeout(()=>this.$vuetify.goTo('#room' + lastelm, this.options),450)
+            setTimeout(()=>this.$vuetify.goTo('#room' + lastelm, this.options),600)
           }
         },
         exitRoom () {
@@ -256,23 +321,21 @@
             this.$store.dispatch('getHistory', name)
           }
         },
-        sendMessage () {
-          console.log(this.selectedRoomName)
-          console.log(this.newRoomName)
-          if(this.selectedRoomName || this.newRoomName){
+        async sendMessage () {
+          if(this.selectedRoomName){
             this.messageSending = true
             let message = {
-              room: this.selectedRoomName || this.newRoomName, // название комнаты. Если такой комнаты нет, она будет создана
+              room: this.selectedRoomName, // название комнаты. Если такой комнаты нет, она будет создана
               text: this.messageText, // текст сообщения
               id: '' // необязательный идентификатор, можно назначить на клиенте, чтобы получить подтверждение получения сообщения сервером
             }
+            await this.$socket.sendObj(message)
             this.scrollToElement()
-            this.$socket.sendObj(message)
             this.messageSending = false
-
+            this.messageText = null
           }
         },
-        createRoom () {
+        async createRoom () {
           if(this.newRoomName){
             this.messageSending = true
             let message = {
@@ -280,9 +343,11 @@
               text: this.newRoomText, // текст сообщения
               id: '' // необязательный идентификатор, можно назначить на клиенте, чтобы получить подтверждение получения сообщения сервером
             }
-            this.$socket.sendObj(message)
+            await this.$socket.sendObj(message)
             this.messageSending = false
             this.newRoomDialog = false
+            this.selectedItem = 0
+
           }
         }
       }
