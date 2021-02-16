@@ -47,7 +47,9 @@
                                 >
                                     <v-list-item-content>
                                         <v-list-item-title>{{item.name}}</v-list-item-title>
-                                        <v-list-item-subtitle> <strong>{{item.last_message.sender?item.last_message.sender.username:''}}</strong> - {{item.last_message.text}}</v-list-item-subtitle>
+                                        <v-list-item-subtitle>
+                                            <strong>{{item.last_message.sender?item.last_message.sender.username:''}}</strong> - {{item.last_message.text}}
+                                        </v-list-item-subtitle>
                                     </v-list-item-content>
                                 </v-list-item>
                                 <v-divider
@@ -146,15 +148,12 @@
                             <v-icon>mdi-close</v-icon>
                         </v-btn>
                     </v-toolbar>
-
                     <v-list  height="80vh" class="scroll chat"  three-line>
                         <v-subheader
                                 key="header"
                         >Сообщения</v-subheader>
-
                             <template v-for="(item,index) in selectedRoomMessages">
                                 <v-list-item :key="'room' + index"  :id="'room' + index" :class="item.sender.username === userInfo.name?'teal accent-1':''">
-
                                     <v-list-item-content>
                                         <v-list-item-title>{{item.sender.username}}</v-list-item-title>
                                         <v-list-item-subtitle>{{item.text}}</v-list-item-subtitle>
@@ -301,7 +300,8 @@
       },
       methods: {
         reconnectSocket() {
-          this.$connect(this.wssurl + '?username=' + this.userInfo.name, { format: 'json', store: this.$store })
+          const uri = encodeURI(this.wssurl + '?username=' + this.userInfo.name)
+          this.$connect(uri, { format: 'json', store: this.$store })
         },
         scrollToElement() {
           const lastelm = this.selectedRoomMessages.length - 1
