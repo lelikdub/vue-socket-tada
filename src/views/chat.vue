@@ -244,7 +244,8 @@
       mounted () {
         this.$store.dispatch('getRooms')
         if (!this.$store.getters.isConnected) {
-          this.$connect(encodeURI(this.wssurl + '?username=' + this.userInfo.name), { format: 'json', store: this.$store })
+          const uri = encodeURI(this.wssurl + '?username=' + this.userInfo.name)
+          this.$connect(uri, { format: 'json', store: this.$store })
         }
       },
       computed: {
